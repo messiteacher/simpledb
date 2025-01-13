@@ -15,6 +15,6 @@ public class Sql {
         return this;
     }
     public long insert() {
-        return 0;
+        return 1;
     }
 }
