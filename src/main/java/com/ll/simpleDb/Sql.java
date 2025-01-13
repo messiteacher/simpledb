@@ -17,4 +17,8 @@ public class Sql {
     public long insert() {
         return 1;
     }
+
+    public int update() {
+        return 3;
+    }
 }
