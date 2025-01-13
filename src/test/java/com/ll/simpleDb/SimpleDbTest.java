@@ -20,6 +20,11 @@ public class SimpleDbTest {
 //        makeArticleTestData();
     }
 
+    @Test
+    void t000() {
+
+    }
+
     private static void createArticleTable() {
         simpleDb.run("DROP TABLE IF EXISTS article");
 
