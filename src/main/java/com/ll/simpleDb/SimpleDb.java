@@ -68,6 +68,10 @@ public class SimpleDb {
         return _run(sql, LocalDateTime.class, params);
     }
 
+    public List<Long> selectLongs(String string, List<Object> params) {
+
+    }
+
     public int run(String sql, Object... params) {
         return _run(sql, Integer.class, Arrays.stream(params).toList());
     }
