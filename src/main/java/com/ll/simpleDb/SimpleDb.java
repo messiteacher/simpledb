@@ -78,13 +78,21 @@ public class SimpleDb {
                 else if (cls == LocalDateTime.class) return cls.cast(rs.getTimestamp(1).toLocalDateTime());
                 else if (cls == Map.class) {
 
+                    // 컬럼명과 컬럼 인덱스
+                    // 컬럼 인덱스를 사용한다. -> 범용성을 위해서 특정 구조에 종속되지 않도록
+
+                    // 컬럼의 수를 알아야 함
+                    ResultSetMetaData metaData = rs.getMetaData();
+
+                    int columnCount = metaData.getColumnCount();
+                    System.out.println(columnCount);
+
                     HashMap<String, Object> row = new HashMap<>();
-                    row.put("id", 1L);
-                    row.put("title", "제목1");
-                    row.put("body", "내용1");
-                    row.put("createdDate", LocalDateTime.now());
-                    row.put("modifiedDate", LocalDateTime.now());
-                    row.put("isBlind", false);
+
+                    for (int i = 1; i <= columnCount; i++) {
+                        String cname = metaData.getColumnName(i);
+                        row.put(cname, rs.getObject(i));
+                    }
 
                     return cls.cast(row);
                 }
