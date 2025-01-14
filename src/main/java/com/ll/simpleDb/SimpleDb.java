@@ -68,7 +68,13 @@ public class SimpleDb {
         return _run(sql, LocalDateTime.class, params);
     }
 
-    public List<Long> selectLongs(String string, List<Object> params) {
+    public List<Long> selectLongs(String sql, List<Object> params) {
+
+        List<Map<String, Object>> maps = selectRows(sql, params);
+
+        return maps.stream()
+                .map(map -> (Long) map.values().iterator().next())
+                .toList();
 
     }
 
