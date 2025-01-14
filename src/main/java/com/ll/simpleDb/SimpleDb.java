@@ -32,6 +32,10 @@ public class SimpleDb {
         }
     }
 
+    public int update(String sql, List<Object> params) {
+        return _run(sql, Integer.class, params);
+    }
+
     public int delete(String sql, List<Object> params) {
         return _run(sql, Integer.class, params);
     }
