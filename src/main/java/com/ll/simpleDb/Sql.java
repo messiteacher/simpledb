@@ -8,18 +8,26 @@ import java.util.Map;
 
 public class Sql {
 
-    private String sqlFormat;
+    private final SimpleDb simpleDb;
+    private final StringBuilder sqlBuilder;
 
-    public Sql() {
+    public Sql(SimpleDb simpleDb) {
+        this.sqlBuilder = new StringBuilder();
+        this.simpleDb = simpleDb;
     }
+
     public Sql append(String sqlLine) {
-        this.sqlFormat = sqlLine;
+        this.sqlBuilder.append(sqlLine);
+        this.sqlBuilder.append(" ");
         return this;
     }
+
     public Sql append(String sqlLine, Object... args) {
-        this.sqlFormat = sqlLine;
+        this.sqlBuilder.append(sqlLine);
+        this.sqlBuilder.append(" ");
         return this;
     }
+
     public long insert() {
         return 1;
     }
@@ -33,6 +41,15 @@ public class Sql {
     }
 
     public List<Map<String, Object>> selectRows() {
+
+//        assertThat(articleRow.get("id")).isEqualTo(id);
+//        assertThat(articleRow.get("title")).isEqualTo("제목%d".formatted(id));
+//        assertThat(articleRow.get("body")).isEqualTo("내용%d".formatted(id));
+//        assertThat(articleRow.get("createdDate")).isInstanceOf(LocalDateTime.class);
+//        assertThat(articleRow.get("createdDate")).isNotNull();
+//        assertThat(articleRow.get("modifiedDate")).isInstanceOf(LocalDateTime.class);
+//        assertThat(articleRow.get("modifiedDate")).isNotNull();
+//        assertThat(articleRow.get("isBlind")).isEqualTo(false);
 
         List<Map<String, Object>> rows = new ArrayList<>();
 
@@ -93,13 +110,6 @@ public class Sql {
     }
 
     public Boolean selectBoolean() {
-
-        if ("SELECT 1 = 1".equals(sqlFormat)) {
-            return true;
-        } else if ("SELECT 1 = 0".equals(sqlFormat)) {
-            return false;
-        }
-
-        return false;
+        return simpleDb.selectBoolean(sqlBuilder.toString());
     }
 }

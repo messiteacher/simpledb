@@ -316,7 +316,7 @@ public class SimpleDbTest {
 //
 //        assertThat(count).isEqualTo(3);
 //    }
-//
+
 //    @Test
 //    @DisplayName("appendIn")
 //    public void t013() {
