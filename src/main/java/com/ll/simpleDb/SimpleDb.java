@@ -72,62 +72,7 @@ public class SimpleDb {
             if (sql.startsWith("SELECT")) {
 
                 ResultSet rs = stmt.executeQuery(); // 실제 반영된 로우 수. insert, update, delete
-
-                if (cls == Boolean.class) {
-                    rs.next();
-                    return cls.cast(rs.getBoolean(1));
-                }
-                else if (cls == String.class) {
-                    rs.next();
-                    return cls.cast(rs.getString(1));
-                }
-                else if (cls == Long.class) {
-                    rs.next();
-                    return cls.cast(rs.getLong(1));
-                }
-                else if (cls == LocalDateTime.class) {
-                    rs.next();
-                    return cls.cast(rs.getTimestamp(1).toLocalDateTime());
-                }
-                else if (cls == Map.class) {
-
-                    // 컬럼명과 컬럼 인덱스
-                    // 컬럼 인덱스를 사용한다. -> 범용성을 위해서 특정 구조에 종속되지 않도록
-
-                    // 컬럼의 수를 알아야 함.
-                    rs.next();
-                    HashMap<String, Object> row = new HashMap<>();
-
-                    ResultSetMetaData metaData = rs.getMetaData();
-
-                    int columnCount = metaData.getColumnCount();
-                    System.out.println(columnCount);
-
-
-                    for (int i = 1; i <= columnCount; i++) {
-                        String cname = metaData.getColumnName(i);
-                        row.put(cname, rs.getObject(i));
-                    }
-
-                    return cls.cast(row);
-                } else if (cls == List.class) {
-
-                    List<Map<String, Object>> rows = new ArrayList<>();
-
-                    while(rs.next()) {
-
-                        Map<String, Object> row = new HashMap<>();
-                        ResultSetMetaData metaData = rs.getMetaData();
-                        int columnCount = metaData.getColumnCount();
-
-                        for (int i = 1; i <= columnCount; i++) {
-                            String cname = metaData.getColumnName(i);
-                            row.put(cname, rs.getObject(i));
-                        }
-                        rows.add(row);
-                    }
-                    return cls.cast(rows);
-                }
+                return parseResutSet(rs, cls);
             }
             setParams(stmt, params); // 파라미터 설정
 
@@ -135,6 +80,58 @@ public class SimpleDb {
         } catch (SQLException e) {
             throw new RuntimeException("SQL 실행 실패: " + e.getMessage());
         }
+    }
+
+    private <T> T parseResutSet(ResultSet rs, Class<T> cls) throws SQLException {
+
+        if (cls == Boolean.class) {
+            rs.next();
+            return cls.cast(rs.getBoolean(1));
+        }
+        else if (cls == String.class) {
+            rs.next();
+            return cls.cast(rs.getString(1));
+        }
+        else if (cls == Long.class) {
+            rs.next();
+            return cls.cast(rs.getLong(1));
+        }
+        else if (cls == LocalDateTime.class) {
+            rs.next();
+            return cls.cast(rs.getTimestamp(1).toLocalDateTime());
+        }
+        else if (cls == Map.class) {
+            rs.next();
+            return cls.cast(rsRowToMap(rs));
+        } else if (cls == List.class) {
+
+            List<Map<String, Object>> rows = new ArrayList<>();
+
+            while(rs.next()) {
+                rows.add(rsRowToMap(rs));
+            }
+            return cls.cast(rows);
+        }
+
+        throw new RuntimeException();
+    }
+
+    private Map<String, Object> rsRowToMap(ResultSet rs) throws SQLException {
+
+        HashMap<String, Object> row = new HashMap<>();
+
+        ResultSetMetaData metaData = rs.getMetaData();
+
+        int columnCount = metaData.getColumnCount();
+        System.out.println(columnCount);
+
+
+        for (int i = 1; i <= columnCount; i++) {
+            String cname = metaData.getColumnName(i);
+            row.put(cname, rs.getObject(i));
+        }
+
+        return row;
     }
 
     // PreparedStatement에 파라미터 바인딩
@@ -146,7 +143,6 @@ public class SimpleDb {
     }
 
     // 데이터베이스 연결 종료
-
     public void close() {
 
         if (connection != null) {
