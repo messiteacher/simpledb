@@ -33,6 +33,14 @@ public class SimpleDb {
         this.devMode = devMode;
     }
 
+    public String selectString(String sql) {
+        return _run(sql, String.class);
+    }
+
+    public Long selectLong(String sql) {
+        return _run(sql, Long.class);
+    }
+
     public boolean selectBoolean(String sql) {
 
         System.out.println("sql : " + sql);
@@ -40,11 +48,15 @@ public class SimpleDb {
     }
 
     public void run(String sql, Object... params) {
-        _run(sql, String.class, params);
+        _run(sql, Integer.class, params);
+    }
+
+    public Sql genSql() {
+        return new Sql(this);
     }
 
     // SQL 실행 (PreparedStatement와 파라미터)
-    public <T> T _run(String sql, Class<T> type, Object... params) {
+    private  <T> T _run(String sql, Class<T> cls, Object... params) {
 
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
 
@@ -53,12 +65,13 @@ public class SimpleDb {
                 ResultSet rs = stmt.executeQuery(); // 실제 반영된 로우 수. insert, update, delete
                 rs.next();
 
-                if (type == Boolean.class) return (T) (Boolean)rs.getBoolean(1);
-                else if (type == String.class) return (T) rs.getString(1);
+                if (cls == Boolean.class) return cls.cast(rs.getBoolean(1));
+                else if (cls == String.class) return cls.cast(rs.getString(1));
+                else if (cls == Long.class) return cls.cast(rs.getLong(1));
             }
             setParams(stmt, params); // 파라미터 설정
 
-            return (T) (Integer) stmt.executeUpdate();
+            return cls.cast(stmt.executeUpdate());
         } catch (SQLException e) {
             throw new RuntimeException("SQL 실행 실패: " + e.getMessage());
         }
@@ -73,6 +86,7 @@ public class SimpleDb {
     }
 
     // 데이터베이스 연결 종료
+
     public void close() {
 
         if (connection != null) {
@@ -85,13 +99,5 @@ public class SimpleDb {
                 throw new RuntimeException("데이터베이스 연결 종료 실패: " + e.getMessage());
             }
         }
-    }
-
-    public Sql genSql() {
-        return new Sql(this);
-    }
-
-    public String selectString(String sql) {
-        return _run(sql, String.class);
     }
 }
