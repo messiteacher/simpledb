@@ -52,12 +52,11 @@ public class SimpleDb {
         return _run(sql, List.class, params);
     }
 
-    public List<Article> selectRows(String sql, List<Object> params, Class<?> cls) {
+    public <T> List<T> selectRows(String sql, List<Object> params, Class<T> cls) {
 
-        return selectRows(sql, params)
-                .stream()
-                .map(Article::fromMap)
-                .toList();
+        return selectRows(sql, params).stream()
+                        .map(map -> Util.mapToObj(map, cls))
+                        .toList();
     }
 
     public String selectString(String sql, List<Object> params) {
