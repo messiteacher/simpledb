@@ -81,7 +81,7 @@ public class Sql {
         rows.add(row2);
         rows.add(row3);
 
-        return rows;
+        return simpleDb.selectRows(sqlBuilder.toString());
     }
 
     public Map<String, Object> selectRow() {

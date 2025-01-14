@@ -2,7 +2,9 @@ package com.ll.simpleDb;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SimpleDb {
@@ -70,24 +72,37 @@ public class SimpleDb {
             if (sql.startsWith("SELECT")) {
 
                 ResultSet rs = stmt.executeQuery(); // 실제 반영된 로우 수. insert, update, delete
-                rs.next();
 
-                if (cls == Boolean.class) return cls.cast(rs.getBoolean(1));
-                else if (cls == String.class) return cls.cast(rs.getString(1));
-                else if (cls == Long.class) return cls.cast(rs.getLong(1));
-                else if (cls == LocalDateTime.class) return cls.cast(rs.getTimestamp(1).toLocalDateTime());
+                if (cls == Boolean.class) {
+                    rs.next();
+                    return cls.cast(rs.getBoolean(1));
+                }
+                else if (cls == String.class) {
+                    rs.next();
+                    return cls.cast(rs.getString(1));
+                }
+                else if (cls == Long.class) {
+                    rs.next();
+                    return cls.cast(rs.getLong(1));
+                }
+                else if (cls == LocalDateTime.class) {
+                    rs.next();
+                    return cls.cast(rs.getTimestamp(1).toLocalDateTime());
+                }
                 else if (cls == Map.class) {
 
                     // 컬럼명과 컬럼 인덱스
                     // 컬럼 인덱스를 사용한다. -> 범용성을 위해서 특정 구조에 종속되지 않도록
 
-                    // 컬럼의 수를 알아야 함
+                    // 컬럼의 수를 알아야 함.
+                    rs.next();
+                    HashMap<String, Object> row = new HashMap<>();
+
                     ResultSetMetaData metaData = rs.getMetaData();
 
                     int columnCount = metaData.getColumnCount();
                     System.out.println(columnCount);
 
-                    HashMap<String, Object> row = new HashMap<>();
 
                     for (int i = 1; i <= columnCount; i++) {
                         String cname = metaData.getColumnName(i);
@@ -95,6 +110,23 @@ public class SimpleDb {
                     }
 
                     return cls.cast(row);
+                } else if (cls == List.class) {
+
+                    List<Map<String, Object>> rows = new ArrayList<>();
+
+                    while(rs.next()) {
+
+                        Map<String, Object> row = new HashMap<>();
+                        ResultSetMetaData metaData = rs.getMetaData();
+                        int columnCount = metaData.getColumnCount();
+
+                        for (int i = 1; i <= columnCount; i++) {
+                            String cname = metaData.getColumnName(i);
+                            row.put(cname, rs.getObject(i));
+                        }
+                        rows.add(row);
+                    }
+                    return cls.cast(rows);
                 }
             }
             setParams(stmt, params); // 파라미터 설정
@@ -131,5 +163,9 @@ public class SimpleDb {
 
     public Map<String, Object> selectRow(String sql) {
         return _run(sql, Map.class);
+    }
+
+    public List<Map<String, Object>> selectRows(String sql) {
+        return _run(sql, List.class);
     }
 }
