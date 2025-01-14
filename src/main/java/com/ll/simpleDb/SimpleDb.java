@@ -1,6 +1,7 @@
 package com.ll.simpleDb;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 
 public class SimpleDb {
 
@@ -47,6 +48,10 @@ public class SimpleDb {
         return _run(sql, Boolean.class);
     }
 
+    public LocalDateTime selectDateTime(String sql) {
+        return _run(sql, LocalDateTime.class);
+    }
+
     public void run(String sql, Object... params) {
         _run(sql, Integer.class, params);
     }
@@ -68,6 +73,7 @@ public class SimpleDb {
                 if (cls == Boolean.class) return cls.cast(rs.getBoolean(1));
                 else if (cls == String.class) return cls.cast(rs.getString(1));
                 else if (cls == Long.class) return cls.cast(rs.getLong(1));
+                else if (cls == LocalDateTime.class) return cls.cast(rs.getTimestamp(1).toLocalDateTime());
             }
             setParams(stmt, params); // 파라미터 설정
 
