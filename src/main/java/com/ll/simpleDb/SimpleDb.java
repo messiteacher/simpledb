@@ -187,4 +187,10 @@ public class SimpleDb {
             throw new RuntimeException(e);
         }
     }
+
+    public void startTransaction() {
+    }
+
+    public void rollback() {
+    }
 }
