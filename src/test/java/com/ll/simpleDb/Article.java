@@ -20,16 +20,4 @@ public class Article {
     private LocalDateTime modifiedDate;
     @JsonProperty("isBlind")
     private boolean isBlind;
-
-    public static Article fromMap(Map<String, Object> map) {
-
-        return new Article(
-                (long) map.get("id"),
-                (String) map.get("title"),
-                (String) map.get("body"),
-                (LocalDateTime) map.get("createdDate"),
-                (LocalDateTime) map.get("modifiedDate"),
-                (boolean) map.get("isBlind")
-        );
-    }
 }
