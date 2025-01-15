@@ -178,4 +178,7 @@ public class SimpleDb {
             stmt.setObject(i + 1, params.get(i)); // '?' 위치에 값 설정
         }
     }
+
+    public void close() {
+    }
 }
